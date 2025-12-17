@@ -1,4 +1,4 @@
-const question=[
+const questions=[
   {
     "num": 1,
     "question_en": "Who wrote the short story 'The Bet'?",
