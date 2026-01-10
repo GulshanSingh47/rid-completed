@@ -958,6 +958,42 @@
         margin: 10px;
       }
     }
+     /* Add these styles to your existing CSS */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    transition: border 0.3s;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  }
+  
+  .form-input:invalid {
+    border-color: #e74c3c;
+  }
+  
+  textarea.form-input {
+    min-height: 100px;
+    resize: vertical;
+  }
   </style>
 </head>
 
@@ -1400,60 +1436,43 @@
   </div>
 
   <!-- Edit Profile Modal -->
-  <div id="editProfileModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Edit Profile</h2>
-        <button class="close-btn" onclick="closeEditProfile()">&times;</button>
-      </div>
-      <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Full Name *</label>
-            <input type="text" id="editFullName" value="Rahul Sharma" required class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Profile Title</label>
-            <input type="text" id="editTitle" value="UPSC Aspirant" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Email *</label>
-            <input type="email" id="editEmail" value="rahul.sharma@example.com" required class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="tel" id="editPhone" value="+91 98765 43210" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Date of Birth</label>
-            <input type="date" id="editDOB" value="1998-03-15" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Location</label>
-            <input type="text" id="editLocation" value="New Delhi, India" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Gender</label>
-            <select id="editGender" class="form-input">
-              <option value="Male" selected>Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Bio/Introduction</label>
-            <textarea id="editBio" rows="3"
-              class="form-input">Aspiring UPSC candidate with focus on General Studies and Current Affairs. Aiming for 2024 CSE.</textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" onclick="closeEditProfile()">Cancel</button>
-          <button type="submit" class="btn-primary">Save Changes</button>
-        </div>
-      </form>
+  <!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit Profile</h2>
+      <button type="button" class="close-btn" onclick="closeEditProfile()">&times;</button>
     </div>
+    <form id="editProfileForm">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="editFullName" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Profile Title</label>
+          <input type="text" id="editTitle" class="form-input" placeholder="e.g., UPSC Aspirant">
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" id="editEmail" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="editPhone" class="form-input" placeholder="e.g., 9876543210">
+        </div>
+        <div class="form-group">
+          <label>Bio/Introduction</label>
+          <textarea id="editBio" rows="3" class="form-input"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeEditProfile()">Cancel</button>
+        <button type="submit" class="btn-primary">Save Changes</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- Avatar Upload Modal -->
   <div id="avatarModal" class="modal">
@@ -1484,453 +1503,454 @@
       </div>
     </div>
   </div>
+<!-- Existing HTML code... -->
 
-  <script>
+<script>
+// ===== GLOBAL VARIABLES =====
+const API = "http://localhost:9191/api";
+let userId = localStorage.getItem("userId");
 
-    // ===== TAB NAVIGATION =====
-    function showTab(tabId) {
-      // Hide all tabs
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
+// ===== AUTHENTICATION CHECK =====
+if (!userId) {
+  console.error("No userId found in localStorage");
+  alert("Please login first!");
+  window.location.href = "/RTS/public/Authentication/login.html";
+} else {
+  console.log("User ID from localStorage:", userId);
+}
 
-      // Remove active class from all menu items
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-
-      // Show selected tab
-      document.getElementById(tabId).classList.add('active');
-
-      // Activate corresponding menu item
-      document.querySelectorAll('.menu-item').forEach(item => {
-        if (item.textContent.includes(tabId.charAt(0).toUpperCase() + tabId.slice(1).replace(/([A-Z])/g, ' $1'))) {
-          item.classList.add('active');
-        }
-      });
-
-      // Special case for overview tab
-      if (tabId === 'overview') {
-        document.querySelector('.menu-item:nth-child(1)').classList.add('active');
+// ===== LOAD PROFILE DATA =====
+async function loadProfile() {
+  try {
+    console.log("Fetching profile data for userId:", userId);
+    
+    const response = await fetch(`${API}/profile/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
       }
-    }
-
-    // ===== MODAL FUNCTIONS =====
-    function openEditProfile() {
-      // Populate form with current data
-      document.getElementById('editFullName').value = userProfile.fullName;
-      document.getElementById('editTitle').value = userProfile.title;
-      document.getElementById('editEmail').value = userProfile.email;
-      document.getElementById('editPhone').value = userProfile.phone;
-      document.getElementById('editDOB').value = userProfile.dob;
-      document.getElementById('editLocation').value = userProfile.location;
-      document.getElementById('editGender').value = userProfile.gender;
-      document.getElementById('editBio').value = userProfile.bio;
-
-      // Show modal
-      document.getElementById('editProfileModal').classList.add('active');
-    }
-
-    function closeEditProfile() {
-      document.getElementById('editProfileModal').classList.remove('active');
-    }
-
-    function openAvatarUpload() {
-      document.getElementById('avatarModal').classList.add('active');
-    }
-
-    function closeAvatarUpload() {
-      document.getElementById('avatarModal').classList.remove('active');
-      resetAvatarUpload();
-    }
-
-    function resetAvatarUpload() {
-      document.getElementById('dropArea').style.display = 'block';
-      document.getElementById('avatarPreview').style.display = 'none';
-      document.getElementById('uploadBtn').disabled = true;
-      document.getElementById('fileInput').value = '';
-    }
-
-    // ===== PROFILE UPDATE FUNCTIONS =====
-    async function saveProfileChanges(event) {
-      event.preventDefault();
-
-      const fullName = document.getElementById("editFullName").value;
-      const email = document.getElementById("editEmail").value;
-      const phoneNumber = document.getElementById("editPhone").value;
-
-      const res = await fetch(`${API}/profile/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, phoneNumber })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert("Profile updated successfully");
-        closeEditProfile();
-        loadProfile(); // 🔁 reload data
-      } else {
-        alert("Update failed");
-      }
-    }
-    function logout() {
-      localStorage.removeItem("userId");
-      window.location.href = "/rts/Authentication/login.html";
-    }
-
-
-    function saveProfileSettings() {
-      const displayName = document.getElementById('displayName').value;
-      const profileTitle = document.getElementById('profileTitle').value;
-
-      // Update profile
-      document.getElementById('userName').textContent = displayName;
-      document.getElementById('userTitle').textContent = profileTitle;
-      userProfile.fullName = displayName;
-      userProfile.title = profileTitle;
-
-      showNotification('Settings saved successfully!', 'success');
-    }
-
-    function updateProfileDisplay() {
-      // Update sidebar
-      document.getElementById('userName').textContent = userProfile.fullName;
-      document.getElementById('userTitle').textContent = userProfile.title;
-
-      // Update overview tab
-      document.getElementById('infoFullName').textContent = userProfile.fullName;
-      document.getElementById('infoEmail').textContent = userProfile.email;
-      document.getElementById('infoPhone').textContent = userProfile.phone;
-      document.getElementById('infoDOB').textContent = formatDate(userProfile.dob);
-      document.getElementById('infoLocation').textContent = userProfile.location;
-      document.getElementById('infoGender').textContent = userProfile.gender;
-    }
-
-    function formatDate(dateString) {
-      const options = { day: 'numeric', month: 'long', year: 'numeric' };
-      return new Date(dateString).toLocaleDateString('en-IN', options);
-    }
-
-    // ===== AVATAR UPLOAD FUNCTIONS =====
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        previewAvatar(file);
-      }
-    }
-
-    function previewAvatar(file) {
-      const reader = new FileReader();
-
-      reader.onload = function (e) {
-        document.getElementById('dropArea').style.display = 'none';
-        document.getElementById('avatarPreview').style.display = 'block';
-        document.getElementById('previewImage').src = e.target.result;
-        document.getElementById('uploadBtn').disabled = false;
-      }
-
-      reader.readAsDataURL(file);
-    }
-
-    // Drag and drop functionality
-    const dropArea = document.getElementById('dropArea');
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      dropArea.addEventListener(eventName, preventDefaults, false);
     });
-
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    
+    console.log("Response status:", response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    
+    const data = await response.json();
+    console.log("Profile API Response:", data);
+    
+    if (data.success && data.user) {
+      updateUIWithUserData(data.user);
+      
+      // Also update localStorage with latest data
+      localStorage.setItem("userName", data.user.fullName);
+      localStorage.setItem("userEmail", data.user.email);
+      localStorage.setItem("userPhone", data.user.phoneNumber || "");
+      localStorage.setItem("userTitle", data.user.title || "Student");
+      
+    } else {
+      throw new Error(data.message || "Failed to load profile data");
+    }
+    
+  } catch (error) {
+    console.error("Error loading profile:", error);
+    
+    // Try to show data from localStorage as fallback
+    const fallbackUser = {
+      fullName: localStorage.getItem("userName") || "User",
+      email: localStorage.getItem("userEmail") || "",
+      phoneNumber: localStorage.getItem("userPhone") || "",
+      title: localStorage.getItem("userTitle") || "Student",
+      createdAt: new Date()
+    };
+    
+    updateUIWithUserData(fallbackUser);
+    showNotification("Could not fetch latest data. Showing cached data.", "warning");
+  }
+}
 
-    ['dragenter', 'dragover'].forEach(eventName => {
-      dropArea.addEventListener(eventName, highlight, false);
+// ===== UPDATE UI WITH USER DATA =====
+function updateUIWithUserData(user) {
+  console.log("Updating UI with:", user);
+  
+  try {
+    // 🔹 NAVBAR UPDATE
+    const userNameElements = document.querySelectorAll('.user-name');
+    userNameElements.forEach(el => {
+      if (el) el.textContent = user.fullName;
     });
+    
+    // Update avatar in navbar
+    const navAvatar = document.querySelector('.user-avatar');
+    if (navAvatar) {
+      // You can set avatar image or initial
+      const initial = user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U';
+      navAvatar.textContent = initial;
+    }
+    
+    // 🔹 SIDEBAR UPDATE
+    const sidebarName = document.getElementById("userName");
+    const sidebarTitle = document.getElementById("userTitle");
+    if (sidebarName) sidebarName.textContent = user.fullName;
+    if (sidebarTitle) sidebarTitle.textContent = user.title || "Student";
+    
+    // 🔹 OVERVIEW TAB UPDATE
+    const infoFullName = document.getElementById("infoFullName");
+    const infoEmail = document.getElementById("infoEmail");
+    const infoPhone = document.getElementById("infoPhone");
+    
+    if (infoFullName) infoFullName.textContent = user.fullName;
+    if (infoEmail) infoEmail.textContent = user.email;
+    if (infoPhone) infoPhone.textContent = user.phoneNumber || "Not provided";
+    
+    // 🔹 MEMBER SINCE
+    const memberSince = document.querySelector(".member-since");
+    if (memberSince && user.createdAt) {
+      const joinDate = new Date(user.createdAt);
+      const options = { year: 'numeric', month: 'long' };
+      const formattedDate = joinDate.toLocaleDateString('en-IN', options);
+      memberSince.innerHTML = `<i class="far fa-calendar-alt"></i> Member since ${formattedDate}`;
+    }
+    
+    // 🔹 EDIT MODAL FIELDS
+    const editFullName = document.getElementById("editFullName");
+    const editEmail = document.getElementById("editEmail");
+    const editPhone = document.getElementById("editPhone");
+    const editTitle = document.getElementById("editTitle");
+    
+    if (editFullName) editFullName.value = user.fullName;
+    if (editEmail) editEmail.value = user.email;
+    if (editPhone) editPhone.value = user.phoneNumber || "";
+    if (editTitle) editTitle.value = user.title || "";
+    
+    // 🔹 SETTINGS TAB FIELDS
+    const displayName = document.getElementById("displayName");
+    const displayEmail = document.getElementById("displayEmail");
+    const profileTitle = document.getElementById("profileTitle");
+    
+    if (displayName) displayName.value = user.fullName;
+    if (displayEmail) displayEmail.value = user.email;
+    if (profileTitle) profileTitle.value = user.title || "";
+    
+  } catch (error) {
+    console.error("Error updating UI:", error);
+  }
+}
 
-    ['dragleave', 'drop'].forEach(eventName => {
-      dropArea.addEventListener(eventName, unhighlight, false);
+// ===== UPDATE PROFILE (DATABASE SYNC) =====
+// ===== UPDATE PROFILE FUNCTION =====
+async function saveProfileChanges(e) {
+  e.preventDefault();
+  console.log("💾 Saving profile changes...");
+  
+  const fullName = document.getElementById('editFullName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const phoneNumber = document.getElementById('editPhone').value.trim();
+  const title = document.getElementById('editTitle').value.trim();
+  
+  console.log("Form Data:", { fullName, email, phoneNumber, title });
+  
+  // Basic validation
+  if (!fullName) {
+    showNotification('Full name is required', 'error');
+    return;
+  }
+  
+  if (!email) {
+    showNotification('Email is required', 'error');
+    return;
+  }
+  
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showNotification('Please enter a valid email address', 'error');
+    return;
+  }
+  
+  try {
+    console.log("🌐 Sending update request to server...");
+    
+    const response = await fetch(`${API}/profile/${userId}`, {
+      method: "PUT",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        fullName, 
+        email, 
+        phoneNumber,
+        title 
+      })
     });
-
-    function highlight() {
-      dropArea.style.backgroundColor = '#e3f2fd';
+    
+    console.log("📥 Server Response Status:", response.status);
+    console.log("📥 Server Response Headers:", response.headers);
+    
+    const data = await response.json();
+    console.log("📥 Server Response Data:", data);
+    
+    if (!response.ok) {
+      // Handle HTTP errors
+      console.error("HTTP Error:", response.status, data);
+      throw new Error(data.message || `HTTP ${response.status} error`);
     }
-
-    function unhighlight() {
-      dropArea.style.backgroundColor = '';
-    }
-
-    dropArea.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-
-      if (files.length > 0) {
-        previewAvatar(files[0]);
+    
+    if (data.success) {
+      console.log("✅ Profile update successful");
+      
+      // Update localStorage
+      localStorage.setItem("userName", fullName);
+      localStorage.setItem("userEmail", email);
+      if (phoneNumber) localStorage.setItem("userPhone", phoneNumber);
+      if (title) localStorage.setItem("userTitle", title);
+      
+      // Update UI with new data
+      if (data.user) {
+        updateUIWithUserData(data.user);
       }
-    }
-
-    function uploadAvatar() {
-      const fileInput = document.getElementById('fileInput');
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-
-        // In a real app, you would upload to server here
-        // For demo, we'll just update the avatar locally
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          document.getElementById('profileAvatar').src = e.target.result;
-          document.querySelector('.user-avatar').src = e.target.result;
-
-          showNotification('Profile picture updated successfully!', 'success');
-          closeAvatarUpload();
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-    // ===== OTHER FUNCTIONS =====
-    function shareProfile() {
-      const shareUrl = window.location.href;
-      const shareText = `Check out my profile on TestSeries Pro: ${userProfile.fullName} - ${userProfile.title}`;
-
-      if (navigator.share) {
-        navigator.share({
-          title: 'My TestSeries Pro Profile',
-          text: shareText,
-          url: shareUrl
-        });
-      } else {
-        // Fallback: Copy to clipboard
-        navigator.clipboard.writeText(shareText + ' ' + shareUrl)
-          .then(() => showNotification('Profile link copied to clipboard!', 'success'))
-          .catch(err => showNotification('Failed to copy link', 'error'));
-      }
-    }
-
-    function changePassword() {
-      const newPassword = prompt('Enter new password:');
-      if (newPassword && newPassword.length >= 6) {
-        showNotification('Password changed successfully!', 'success');
-      } else if (newPassword) {
-        showNotification('Password must be at least 6 characters', 'error');
-      }
-    }
-
-    function updateChart() {
-      const filter = document.getElementById('timeFilter').value;
-      // In a real app, you would fetch new chart data based on filter
-      showNotification(`Chart updated for: ${filter}`, 'info');
-    }
-
-    function showNotification(message, type) {
-      // Create notification element
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i>
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()">&times;</button>
-            `;
-
-      // Style the notification
-      notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#3498db'};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                z-index: 3000;
-                animation: slideIn 0.3s ease;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            `;
-
-      // Add to page
-      document.body.appendChild(notification);
-
-      // Remove after 3 seconds
+      
+      closeEditProfile();
+      showNotification('Profile updated successfully!', 'success');
+      
+      // Reload profile data to sync with server
       setTimeout(() => {
-        if (notification.parentElement) {
-          notification.style.animation = 'slideOut 0.3s ease';
-          setTimeout(() => notification.remove(), 300);
-        }
-      }, 3000);
-
-      // Add CSS animations
-      const style = document.createElement('style');
-      style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-      document.head.appendChild(style);
+        loadProfile();
+      }, 1000);
+      
+    } else {
+      console.error("❌ Server returned error:", data.message);
+      showNotification(data.message || 'Update failed', 'error');
     }
+    
+  } catch (err) {
+    console.error("❌ Update error:", err);
+    console.error("Error details:", err.stack);
+    
+    let errorMessage = 'Server error. Please try again.';
+    
+    if (err.message.includes('Failed to fetch')) {
+      errorMessage = 'Network error. Please check your internet connection.';
+    } else if (err.message.includes('404')) {
+      errorMessage = 'User not found. Please login again.';
+    } else if (err.message.includes('409')) {
+      errorMessage = 'Email or phone number already exists.';
+    } else if (err.message.includes('400')) {
+      errorMessage = 'Invalid data. Please check your input.';
+    }
+    
+    showNotification(errorMessage, 'error');
+  }
+}
 
-    // ===== INITIALIZATION =====
-    document.addEventListener('DOMContentLoaded', function () {
-      // Initialize profile display
-      updateProfileDisplay();
+// ===== LOGOUT FUNCTION =====
+function logout() {
+  console.log("Logging out...");
+  localStorage.clear();
+  window.location.href = "/RTS/public/Authentication/login.html";
+}
 
-      // Close modals when clicking outside
-      window.addEventListener('click', function (event) {
-        const editModal = document.getElementById('editProfileModal');
-        const avatarModal = document.getElementById('avatarModal');
+// ===== NOTIFICATION FUNCTION =====
+function showNotification(message, type) {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `
+    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+    <span>${message}</span>
+    <button onclick="this.parentElement.remove()">&times;</button>
+  `;
+  
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#f39c12'};
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 3000;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, 3000);
+}
 
-        if (event.target === editModal) {
-          closeEditProfile();
-        }
-        if (event.target === avatarModal) {
-          closeAvatarUpload();
-        }
-      });
-
-      // Add toggle switch styles
-      const toggleStyle = document.createElement('style');
-      toggleStyle.textContent = `
-                .toggle-switch {
-                    position: relative;
-                    display: inline-block;
-                    width: 50px;
-                    height: 24px;
-                }
-                .toggle-switch input {
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                }
-                .slider {
-                    position: absolute;
-                    cursor: pointer;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: #ccc;
-                    transition: .4s;
-                    border-radius: 24px;
-                }
-                .slider:before {
-                    position: absolute;
-                    content: "";
-                    height: 16px;
-                    width: 16px;
-                    left: 4px;
-                    bottom: 4px;
-                    background-color: white;
-                    transition: .4s;
-                    border-radius: 50%;
-                }
-                input:checked + .slider {
-                    background-color: #3498db;
-                }
-                input:checked + .slider:before {
-                    transform: translateX(26px);
-                }
-                .setting-item {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 15px 0;
-                    border-bottom: 1px solid #eee;
-                }
-                .setting-item:last-child {
-                    border-bottom: none;
-                }
-                .form-group {
-                    margin-bottom: 20px;
-                }
-                .form-input {
-                    width: 100%;
-                    padding: 10px 15px;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    font-family: 'Poppins', sans-serif;
-                    font-size: 1rem;
-                }
-                .avatar-upload-area {
-                    border: 2px dashed #3498db;
-                    border-radius: 10px;
-                    padding: 40px 20px;
-                    text-align: center;
-                    margin-bottom: 20px;
-                    cursor: pointer;
-                }
-                .avatar-upload-area i {
-                    font-size: 3rem;
-                    color: #3498db;
-                    margin-bottom: 15px;
-                }
-                .avatar-preview {
-                    text-align: center;
-                }
-                .avatar-preview img {
-                    max-width: 200px;
-                    max-height: 200px;
-                    border-radius: 50%;
-                    border: 4px solid #3498db;
-                }
-                .upload-note {
-                    color: #7f8c8d;
-                    margin: 10px 0;
-                }
-            `;
-      document.head.appendChild(toggleStyle);
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Profile page loaded");
+  
+  // Load profile data
+  loadProfile();
+  
+  // Setup logout button
+  const logoutBtn = document.querySelector('.logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      logout();
     });
+  }
+  
+  // Debug: Check what's in localStorage
+  console.log("LocalStorage check:");
+  console.log("userId:", localStorage.getItem("userId"));
+  console.log("userName:", localStorage.getItem("userName"));
+  console.log("userEmail:", localStorage.getItem("userEmail"));
+});
 
-    // ===== EVENT LISTENERS =====
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        closeEditProfile();
-        closeAvatarUpload();
+// ===== EXISTING FUNCTIONS (कॉपी करें) =====
+function showTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.querySelector(`a[onclick*="${tabId}"]`).classList.add('active');
+}
+
+function openEditProfile() {
+  document.getElementById('editProfileModal').classList.add('active');
+}
+
+function closeEditProfile() {
+  document.getElementById('editProfileModal').classList.remove('active');
+}
+
+function openAvatarUpload() {
+  document.getElementById('avatarModal').classList.add('active');
+}
+
+function closeAvatarUpload() {
+  document.getElementById('avatarModal').classList.remove('active');
+}
+
+// Add CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+`;
+document.head.appendChild(style);
+// ===== SAVE PROFILE SETTINGS =====
+async function saveProfileSettings() {
+  const displayName = document.getElementById('displayName').value.trim();
+  const email = document.getElementById('displayEmail').value.trim();
+  const profileTitle = document.getElementById('profileTitle').value.trim();
+  
+  console.log("💾 Saving profile settings:", { displayName, email, profileTitle });
+  
+  if (!displayName) {
+    showNotification('Display name is required', 'error');
+    return;
+  }
+  
+  if (!email) {
+    showNotification('Email is required', 'error');
+    return;
+  }
+  
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showNotification('Please enter a valid email address', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API}/profile/${userId}`, {
+      method: "PUT",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        fullName: displayName, 
+        email, 
+        title: profileTitle 
+      })
+    });
+    
+    console.log("Settings update response:", response.status);
+    const data = await response.json();
+    console.log("Settings update data:", data);
+    
+    if (data.success) {
+      // Update localStorage
+      localStorage.setItem("userName", displayName);
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userTitle", profileTitle);
+      
+      // Update UI
+      if (data.user) {
+        updateUIWithUserData(data.user);
       }
+      
+      showNotification('Settings saved successfully!', 'success');
+    } else {
+      showNotification(data.message || 'Save failed', 'error');
+    }
+    
+  } catch (err) {
+    console.error("Save settings error:", err);
+    showNotification('Server error. Please try again.', 'error');
+  }
+}
+
+// ===== FORM SUBMIT HANDLER =====
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Profile page loaded");
+  
+  // Load profile data
+  loadProfile();
+  
+  // Setup logout button
+  const logoutBtn = document.querySelector('.logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      logout();
     });
-    const API = "http://localhost:9191/api";
-    const userId = localStorage.getItem("userId");
-
-    if (!userId) {
-      window.location.href = "/rts/Authentication/login.html";
-    }
-
-    // 🔹 LOAD PROFILE
-    async function loadProfile() {
-      const res = await fetch(`${API}/profile/${userId}`);
-      const data = await res.json();
-
-      if (!data.success) return alert("Profile load failed");
-
-      const user = data.user;
-
-      // Navbar & Sidebar
-      document.getElementById("userName").innerText = user.fullName;
-
-      // Overview
-      document.getElementById("infoFullName").innerText = user.fullName;
-      document.getElementById("infoEmail").innerText = user.email;
-      document.getElementById("infoPhone").innerText = user.phoneNumber;
-
-      // Edit Modal
-      document.getElementById("editFullName").value = user.fullName;
-      document.getElementById("editEmail").value = user.email;
-      document.getElementById("editPhone").value = user.phoneNumber;
-    }
-
-    loadProfile();
-
-  </script>
+  }
+  
+  // Setup edit profile form submit
+  const editProfileForm = document.getElementById('editProfileForm');
+  if (editProfileForm) {
+    editProfileForm.addEventListener('submit', function(e) {
+      console.log("Form submitted via submit event");
+      saveProfileChanges(e);
+    });
+  } else {
+    console.error("Edit profile form not found!");
+  }
+  
+  // Setup settings save button
+  const saveSettingsBtn = document.querySelector('[onclick="saveProfileSettings()"]');
+  if (saveSettingsBtn) {
+    // Remove old onclick and add new event listener
+    saveSettingsBtn.removeAttribute('onclick');
+    saveSettingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      saveProfileSettings();
+    });
+  }
+  
+  // Debug: Check what's in localStorage
+  console.log("LocalStorage check:");
+  console.log("userId:", localStorage.getItem("userId"));
+  console.log("userName:", localStorage.getItem("userName"));
+  console.log("userEmail:", localStorage.getItem("userEmail"));
+});
+</script>
 </body>
 
 </html>

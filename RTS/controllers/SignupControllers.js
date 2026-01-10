@@ -83,7 +83,6 @@ exports.signupUser = async (req, res) => {
     });
   }
 };
-
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -95,7 +94,7 @@ exports.loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -111,13 +110,17 @@ exports.loginUser = async (req, res) => {
       });
     }
 
+    // ✅ सभी user data भेजें
     res.status(200).json({
       success: true,
       message: "Login successful",
       user: {
-        id: user._id,
+        id: user._id.toString(), // ⭐ .toString() add करें
         fullName: user.fullName,
-        email: user.email
+        email: user.email,
+        phoneNumber: user.phoneNumber || "",
+        title: user.title || "Student",
+        createdAt: user.createdAt
       }
     });
 

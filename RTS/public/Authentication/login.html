@@ -63,6 +63,14 @@
       margin-top: 15px;
       font-size: 14px;
     }
+    
+    .error {
+      color: red;
+    }
+    
+    .success {
+      color: green;
+    }
   </style>
 </head>
 <body>
@@ -81,8 +89,10 @@
     <button onclick="login()">Login</button>
 
     <div class="msg" id="msg"></div>
-
-    <a href="forgetPassword.html">Forget Password</a>
+    
+    <div style="text-align: center; margin-top: 15px;">
+      <a href="signup.html">Don't have account? Sign Up</a>
+    </div>
   </div>
 
 <script>
@@ -91,31 +101,54 @@ async function login() {
   const password = document.getElementById("password").value;
   const msg = document.getElementById("msg");
 
-  const res = await fetch("http://localhost:9191/api/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  });
+  // Clear previous message
+  msg.innerHTML = '';
+  msg.className = 'msg';
 
-  const data = await res.json();
+  try {
+    const res = await fetch("http://localhost:9191/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
 
- if (data.success) {
-  msg.style.color = "green";
-  msg.innerText = "Login successful! Redirecting...";
+    const data = await res.json();
+    console.log("Login response:", data); // Debugging के लिए
 
-  // ✅ USER ID STORE (IMPORTANT)
-  localStorage.setItem("userId", data.user.id);
-  localStorage.setItem("userName", data.user.fullName);
-  localStorage.setItem("userEmail", data.user.email);
+    if (data.success) {
+      msg.className = 'msg success';
+      msg.innerHTML = "✅ Login successful! Redirecting to dashboard...";
 
-  setTimeout(() => {
-    // ✅ SAME REDIRECT AS YOU WANT
-    window.location.href = "/RTS/public/main.html";
-  }, 1000);
+      // ✅ सभी user data store करें
+      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("userName", data.user.fullName);
+      localStorage.setItem("userEmail", data.user.email);
+      localStorage.setItem("userPhone", data.user.phoneNumber || "");
+      localStorage.setItem("userTitle", data.user.title || "Student");
+
+      console.log("Stored userId:", localStorage.getItem("userId")); // Debug
+
+      setTimeout(() => {
+        // ✅ Dashboard पर redirect
+        window.location.href = "/RTS/public/main.html";
+      }, 1000);
+    } else {
+      msg.className = 'msg error';
+      msg.innerHTML = "❌ " + (data.message || "Login failed!");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    msg.className = 'msg error';
+    msg.innerHTML = "❌ Network error. Please try again.";
+  }
 }
 
-
-}
+// Enter key press support
+document.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    login();
+  }
+});
 </script>
 
 </body>
